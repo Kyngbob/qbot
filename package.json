@@ -3,6 +3,9 @@
   "version": "7.4.0",
   "description": "The most advanced Discord to Roblox ranking bot available, open source and free, without any branding.",
   "main": "src/main.ts",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "start": "ts-node src/main.ts",
     "build": "tsc --outDir dist",
@@ -25,7 +28,7 @@
     "@types/node": "^17.0.4",
     "axios": "^0.24.0",
     "bloxy": "5.8.0",
-    "discord.js": "14.11.0",
+    "discord.js": "^14.11.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.2",
     "figlet": "^1.5.2",
