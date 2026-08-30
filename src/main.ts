@@ -13,16 +13,14 @@ import { checkBans } from './events/bans';
 import { checkWallForAds } from './events/wall';
 require('dotenv').config();
 
-// [Ensure Setup]
-if (!process.env.ROBLOX_COOKIE && !process.env.ROBLOX_TICKET) {
-    console.error('Neither ROBLOX_COOKIE nor ROBLOX_TICKET is set in the environment variables.');
+if (!process.env.ROBLOX_COOKIE) {
+    console.error('ROBLOX_COOKIE is not set in environment variables.');
     process.exit(1);
 }
 
 require('./database');
 require('./api');
 
-// [Clients]
 const discordClient = new QbotClient();
 discordClient.login(process.env.DISCORD_TOKEN);
 
@@ -30,25 +28,24 @@ const robloxClient = new RobloxClient();
 let robloxGroup: Group = null;
 
 (async () => {
-    // Authenticate using ticket if present, otherwise fall back to cookie
-    if (process.env.ROBLOX_TICKET) {
-        await robloxClient.login({
-            ticket: process.env.ROBLOX_TICKET
-        } as any).catch(console.error);
-    } else {
-        await robloxClient.login(process.env.ROBLOX_COOKIE).catch(console.error);
-    }
+    try {
+        // Authenticate with the ROBLOX_COOKIE directly
+        await robloxClient.login(process.env.ROBLOX_COOKIE);
+        console.log('Successfully authenticated with Roblox!');
 
-    robloxGroup = await robloxClient.getGroup(config.groupId);
-    
-    // [Events]
-    checkSuspensions();
-    checkBans();
-    if (config.logChannels.shout) recordShout();
-    if (config.recordManualActions) recordAuditLogs();
-    if (config.memberCount.enabled) recordMemberCount();
-    if (config.antiAbuse.enabled) clearActions();
-    if (config.deleteWallURLs) checkWallForAds();
+        robloxGroup = await robloxClient.getGroup(config.groupId);
+        
+        // [Events] - Only run after successful authentication
+        checkSuspensions();
+        checkBans();
+        if (config.logChannels.shout) recordShout();
+        if (config.recordManualActions) recordAuditLogs();
+        if (config.memberCount.enabled) recordMemberCount();
+        if (config.antiAbuse.enabled) clearActions();
+        if (config.deleteWallURLs) checkWallForAds();
+    } catch (err) {
+        console.error('Failed to authenticate with Roblox:', err);
+    }
 })();
 
 // [Handlers]
