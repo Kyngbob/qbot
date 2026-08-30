@@ -30,10 +30,10 @@ export const securityText = `\n${consoleRed}⚠  ${consoleClear}URGENT: For secu
 
 export const noFiredRankLog = `Uh oh, you do not have a fired rank with the rank specified in your configuration file.`;
 export const noSuspendedRankLog = `Uh oh, you do not have a suspended rank with the rank specified in your configuration file.`;
-export const getListeningText = (port) => `${consoleGreen}✓  ${consoleClear}Listening on port ${port}.`;
+export const getListeningText = (port: number | string) => `${consoleGreen}✓  ${consoleClear}Listening on port ${port}.`;
 
 const getHeadshotImage = async (userId: number) => {
-    return (await robloxClient.apis.thumbnailsAPI.getUsersAvatarHeadShotImages({ userIds: [ userId ], size: '48x48', format: 'png' })).data[0];
+    return `https://www.roblox.com/headshot-thumbnail/image?userId=${userId}&width=48&height=48&format=png`;
 }
 
 export const getUnknownCommandMessage = (): EmbedBuilder => {
@@ -105,8 +105,8 @@ export const getSuccessfulAddingAndRankupEmbed = async(user: User | PartialUser,
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
-        .setDescription(`**${user.name}** has been given **${xpChange}** XP and has been promoted to **${newRole}**, becuase they had enough XP!`)
+        .setThumbnail(await getHeadshotImage(user.id))
+        .setDescription(`**${user.name}** has been given **${xpChange}** XP and has been promoted to **${newRole}**, because they had enough XP!`)
 
     return embed
 }
@@ -115,7 +115,7 @@ export const getSuccessfulPromotionEmbed = async (user: User | PartialUser, newR
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** has been successfully promoted to **${newRole}**!`);
 
     return embed;
@@ -125,7 +125,7 @@ export const getSuccessfulDemotionEmbed = async (user: User | PartialUser, newRo
     const embed = new EmbedBuilder()
     .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** has been successfully demoted to **${newRole}**.`);
 
     return embed;
@@ -135,7 +135,7 @@ export const getSuccessfulFireEmbed = async (user: User | PartialUser, newRole: 
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** has been successfully fired, and now has the **${newRole}** role.`);
 
     return embed;
@@ -145,7 +145,7 @@ export const getSuccessfulExileEmbed = async (user: User | PartialUser): Promise
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** has been successfully exiled from the group.`);
 
     return embed;
@@ -155,7 +155,7 @@ export const getSuccessfulSetRankEmbed = async (user: User | PartialUser, newRol
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** has successfully been ranked to the **${newRole}** role.`);
 
     return embed;
@@ -192,7 +192,7 @@ export const getSuccessfulXPRankupEmbed = async (user: User | PartialUser, newRo
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** has been successfully ranked to **${newRole}**!`);
 
     return embed;
@@ -202,7 +202,7 @@ export const getSuccessfulXPChangeEmbed = async (user: User | PartialUser, xp: n
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`The XP of **${user.name}** has been updated, they now have a total of **${xp}** XP.`);
 
     return embed;
@@ -212,7 +212,7 @@ export const getSuccessfulSuspendEmbed = async (user: User | PartialUser, newRol
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** has been successfully suspended, and will have their rank returned in <t:${Math.round(endDate.getTime() / 1000)}:R>.`);
 
     return embed;
@@ -222,7 +222,7 @@ export const getSuccessfulUnsuspendEmbed = async (user: User | PartialUser, newR
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`**${user.name}** is no longer suspended, and has been ranked back to **${newRole}**!`);
 
     return embed;
@@ -232,7 +232,7 @@ export const getSuccessfulAcceptJoinRequestEmbed = async (user: User | PartialUs
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`The join request from **${user.name}** has been accepted.`);
 
     return embed;
@@ -242,7 +242,7 @@ export const getSuccessfulDenyJoinRequestEmbed = async (user: User | PartialUser
     const embed = new EmbedBuilder()
         .setAuthor({ name: 'Success!', iconURL: checkIconUrl })
         .setColor(greenColor)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setDescription(`The join request from **${user.name}** has been denied.`);
 
     return embed;
@@ -393,7 +393,7 @@ export const getShoutLogEmbed = async (shout: any): Promise<EmbedBuilder> => {
     const shoutCreator = await robloxClient.apis.usersAPI.getUserById(shout.creator.id);
     const embed = new EmbedBuilder()
         .setAuthor({ name: `Shout from ${shoutCreator.name}`, iconURL: quoteIconUrl })
-        .setThumbnail((await getHeadshotImage(shout.creator.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(shout.creator.id))
         .setColor(mainColor)
         .setTimestamp()
         .setDescription(shout.content);
@@ -401,11 +401,11 @@ export const getShoutLogEmbed = async (shout: any): Promise<EmbedBuilder> => {
     return embed;
 }
 
-export const getWallPostEmbed = async (post): Promise<EmbedBuilder> => {
+export const getWallPostEmbed = async (post: any): Promise<EmbedBuilder> => {
     const postCreator = await robloxClient.apis.usersAPI.getUserById(post.poster);
     const embed = new EmbedBuilder()
         .setAuthor({ name: `Posted by ${postCreator.name}`, iconURL: quoteIconUrl })
-        .setThumbnail((await getHeadshotImage(post.poster)).imageUrl)
+        .setThumbnail(await getHeadshotImage(post.poster))
         .setColor(mainColor)
         .setTimestamp()
         .setDescription(post['body']);
@@ -413,7 +413,7 @@ export const getWallPostEmbed = async (post): Promise<EmbedBuilder> => {
     return embed;
 }
 
-export const getLogEmbed = async (action: string, moderator: DiscordUser | User | GroupMember | any, reason?: string, target?: User | PartialUser, rankChange?: string, endDate?: Date, body?: string, xpChange?: string): Promise<EmbedBuilder> => {
+export const getLogEmbed = async (action: string, moderator: DiscordUser | User | GroupMember | any, reason?: string, target?: User | PartialUser | null, rankChange?: string, endDate?: Date, body?: string, xpChange?: string): Promise<EmbedBuilder> => {
     if(target && !target.name) target = null;
     
     const embed = new EmbedBuilder()
@@ -429,7 +429,9 @@ export const getLogEmbed = async (action: string, moderator: DiscordUser | User 
             embed.setFooter({ text: `Moderator ID: ${moderator.id}` });
         } else {
             embed.setAuthor({ name: moderator.username });
-            embed.setThumbnail((await getHeadshotImage(target.id)).imageUrl)
+            if (target) {
+                embed.setThumbnail(await getHeadshotImage(target.id));
+            }
         }
     }
 
@@ -461,7 +463,7 @@ export const getPartialUserInfoEmbed = async (user: User | PartialUser, data: Da
         .setAuthor({ name: `Information: ${user.name}`, iconURL: infoIconUrl })
         .setColor(mainColor)
         .setDescription(primaryGroup ? `Primary Group: [${primaryGroup.group.name}](https://roblox.com/groups/${primaryGroup.group.id})` : null)
-        .setThumbnail((await getHeadshotImage(user.id)).imageUrl)
+        .setThumbnail(await getHeadshotImage(user.id))
         .setFooter({ text: `User ID: ${user.id}` })
         .setTimestamp()
         .addFields([
@@ -496,7 +498,7 @@ export const getUserInfoEmbed = async (user: User | PartialUser, member: GroupMe
         .setAuthor({ name: `Information: ${user.name}`, iconURL: infoIconUrl })
         .setColor(mainColor)
         .setDescription(primaryGroup ? `Primary Group: [${primaryGroup.group.name}](https://roblox.com/groups/${primaryGroup.group.id})` : null)
-        .setThumbnail((await robloxClient.apis.thumbnailsAPI.getUsersAvatarHeadShotImages({ userIds: [ user.id ], size: '150x150', format: 'png', isCircular: false })).data[0].imageUrl)
+        .setThumbnail(`https://www.roblox.com/headshot-thumbnail/image?userId=${user.id}&width=150&height=150&format=png`)
         .setFooter({ text: `User ID: ${user.id}` })
         .setTimestamp()
         .addFields([
@@ -507,7 +509,7 @@ export const getUserInfoEmbed = async (user: User | PartialUser, member: GroupMe
             },
             {
                 name: 'XP',
-                value: data.xp.toString() || '0',
+                value: data.xp ? data.xp.toString() : '0',
                 inline: true
             },
             {
