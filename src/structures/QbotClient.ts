@@ -26,20 +26,20 @@ class QbotClient extends Client {
         this.on('ready', () => {
             console.log(qbotLaunchTextDisplay);
             console.log(welcomeText);
-            if(this.application.botPublic) return console.log(securityText);
+            if(this.application?.botPublic) return console.log(securityText);
             console.log(startedText);
             console.log(getListeningText(process.env.PORT || 3001));
             this.loadCommands();
             getLogChannels();
 
             if(config.activity.enabled) {
-                this.user.setActivity(config.activity.value, {
-                    type: config.activity.type,
+                this.user?.setActivity(config.activity.value, {
+                    type: config.activity.type as any,
                     url: config.activity.url,
                 });
             }
 
-            if(config.status !== 'online') this.user.setStatus(config.status);
+            if(config.status !== 'online') this.user?.setStatus(config.status as any);
         });
     }
 
@@ -53,18 +53,19 @@ class QbotClient extends Client {
             rawModules.forEach(async (module, moduleIndex) => {
                 const rawCommands = readdirSync(`./src/commands/${module}`);
                 rawCommands.forEach(async (cmdName, cmdIndex) => {
-                    const { default: command }: CommandExport = await import(`../commands/${module}/${cmdName.replace('.ts', '')}`);
+                    const imported = await import(`../commands/${module}/${cmdName.replace('.ts', '')}`);
+                    const command = imported.default as Command;
                     commands.push(command);
                     if(moduleIndex === rawModules.length - 1 && cmdIndex === rawCommands.length - 1) resolve(commands);
                 });
             }); 
         });
-        loadPromise.then(async (commands: Command[]) => {
+        loadPromise.then(async (commands: any) => {
             const slashCommands = commands.map((cmd: any) => new cmd().generateAPICommand());
             const currentCommands = require('../resources/commands.json');
             if(JSON.stringify(currentCommands) !== JSON.stringify(slashCommands)) {
                 writeFileSync('./src/resources/commands.json', JSON.stringify(slashCommands), 'utf-8');
-                discordClient.application.commands.set(slashCommands);
+                discordClient.application?.commands.set(slashCommands);
             }
             this.commands = commands;
         });
