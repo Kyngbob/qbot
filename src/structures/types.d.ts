@@ -56,9 +56,13 @@ export interface BotConfig {
 }
 
 export interface DatabaseUser {
-    discordId: string;
-    robloxId?: number;
+    id?: string;
+    discordId?: string;
+    robloxId?: number | string;
     xp?: number;
+    suspendedUntil?: Date;
+    unsuspendRank?: number;
+    isBanned?: boolean;
     [key: string]: any;
 }
 
@@ -70,25 +74,40 @@ export interface BloxlinkResponse {
 }
 
 export type CommandArgument = {
-    name: string;
+    trigger?: string;
+    name?: string;
     description: string;
-    type: number;
+    type: string | number;
     required?: boolean;
+    autocomplete?: boolean;
+    isLegacyFlag?: boolean;
     [key: string]: any;
 };
+
+export type CommandPermissionObject = {
+    type: string;
+    ids: string[];
+    value: boolean;
+};
+
+export type CommandPermission = string | string[] | boolean | CommandPermissionObject | CommandPermissionObject[];
 
 export type CommandConfig = {
-    name: string;
+    trigger?: string;
+    name?: string;
     description: string;
+    type?: string;
+    module?: string;
     arguments?: CommandArgument[];
+    args?: CommandArgument[];
+    permissions?: CommandPermission[];
     [key: string]: any;
 };
-
-export type CommandPermission = string | string[] | boolean;
 
 export type CommandType = 'slash' | 'legacy' | 'both';
 
 export type CommandExport = {
     command: CommandConfig;
+    default?: CommandExport;
     run: (...args: any[]) => Promise<any>;
 };
