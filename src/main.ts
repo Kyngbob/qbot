@@ -1,9 +1,7 @@
 import { QbotClient } from './structures/QbotClient';
-import { Client as RobloxClient } from 'bloxy';
 import { handleInteraction } from './handlers/handleInteraction';
 import { handleLegacyCommand } from './handlers/handleLegacyCommand';
 import { config } from './config'; 
-import { Group } from 'bloxy/dist/structures';
 import { recordShout } from './events/shout';
 import { checkSuspensions } from './events/suspensions';
 import { recordAuditLogs } from './events/audit';
@@ -11,44 +9,54 @@ import { recordMemberCount } from './events/member';
 import { clearActions } from './handlers/abuseDetection';
 import { checkBans } from './events/bans';
 import { checkWallForAds } from './events/wall';
+import axios from 'axios';
+
 require('dotenv').config();
 
-if (!process.env.ROBLOX_COOKIE) {
-    console.error('ROBLOX_COOKIE is not set in environment variables.');
+// Verify Open Cloud Key setup
+if (!process.env.ROBLOX_OPENCLOUD_KEY) {
+    console.error('CRITICAL: ROBLOX_OPENCLOUD_KEY is not set in environment variables.');
     process.exit(1);
 }
 
 require('./database');
 require('./api');
 
+// Initialize Discord Client
 const discordClient = new QbotClient();
 discordClient.login(process.env.DISCORD_TOKEN);
 
-const proxyUrl = process.env.PROXY_URL; // Should be https://roproxy.com
-const robloxClient = new RobloxClient();
-
-if (proxyUrl) {
-    const originalRequest = robloxClient.rest.request.bind(robloxClient.rest);
-    robloxClient.rest.request = async (options: any) => {
-        if (options && options.url) {
-            // Replace .roblox.com with .roproxy.com automatically
-            options.url = options.url.toString().replace(/roblox\.com/g, 'roproxy.com');
-        }
-        return originalRequest(options);
-    };
+/**
+ * Updates a user's rank in the Roblox group using Open Cloud API
+ */
+export async function setUserRankOpenCloud(userId: number, roleId: number) {
+    try {
+        const url = `https://apis.roblox.com/cloud/v1/groups/${config.groupId}/users/${userId}`;
+        
+        const response = await axios.patch(
+            url,
+            { roleId: roleId },
+            {
+                headers: {
+                    'x-api-key': process.env.ROBLOX_OPENCLOUD_KEY,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        return response.data;
+    } catch (error: any) {
+        console.error('Open Cloud API Error:', error.response?.data || error.message);
+        throw error;
+    }
 }
 
-let robloxGroup: Group = null;
-
+// Startup execution (Replaces Bloxy login check)
 (async () => {
     try {
-        await robloxClient.login(process.env.ROBLOX_COOKIE);
-        console.log('Successfully authenticated with Roblox via RoProxy!');
-
-        robloxGroup = await robloxClient.getGroup(config.groupId);
-        console.log(`Loaded Roblox Group: ${robloxGroup.name} (${robloxGroup.id})`);
+        console.log('✓ Bot initialized successfully using Roblox Open Cloud API!');
+        console.log(`✓ Target Group ID: ${config.groupId}`);
         
-        // [Events] - Runs after successful authentication
+        // [Events] - Background jobs
         checkSuspensions();
         checkBans();
         if (config.logChannels.shout) recordShout();
@@ -57,7 +65,7 @@ let robloxGroup: Group = null;
         if (config.antiAbuse.enabled) clearActions();
         if (config.deleteWallURLs) checkWallForAds();
     } catch (err) {
-        console.error('Failed to authenticate with Roblox:', err);
+        console.error('Failed to initialize background events:', err);
     }
 })();
 
@@ -65,5 +73,5 @@ let robloxGroup: Group = null;
 discordClient.on('interactionCreate', handleInteraction as any);
 discordClient.on('messageCreate', handleLegacyCommand);
 
-// [Module]
-export { discordClient, robloxClient, robloxGroup };
+// [Module Exports]
+export { discordClient };
