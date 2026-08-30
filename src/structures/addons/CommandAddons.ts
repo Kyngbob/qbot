@@ -41,10 +41,10 @@ export class CommandContext  {
 
         this.args = {};
         if(payload instanceof BaseInteraction) {
-            const interaction = payload as CommandInteraction;
+            const interaction = payload as any;
             if (interaction.options && 'data' in interaction.options) {
                 interaction.options.data.forEach(async (arg: any) => {
-                    this.args[arg.name] = (interaction.options as any).get(arg.name)?.value;
+                    this.args[arg.name] = interaction.options.get(arg.name)?.value;
                 });
             }
         } else {
