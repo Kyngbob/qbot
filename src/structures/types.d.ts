@@ -45,20 +45,15 @@ export interface BotConfig {
         threshold: number;
         demotionRank: number;
     };
-    activity: {
-        enabled: boolean;
-        type: ActivityType | any;
-        value: string;
-        url?: string;
-    };
-    status: PresenceStatusData | string;
+    activity: any;
+    status: any;
     deleteWallURLs: boolean;
 }
 
 export interface DatabaseUser {
     id?: string;
     discordId?: string;
-    robloxId?: number | string;
+    robloxId?: string;
     xp?: number;
     suspendedUntil?: Date;
     unsuspendRank?: number;
@@ -84,13 +79,7 @@ export type CommandArgument = {
     [key: string]: any;
 };
 
-export type CommandPermissionObject = {
-    type: string;
-    ids: string[];
-    value: boolean;
-};
-
-export type CommandPermission = string | string[] | boolean | CommandPermissionObject | CommandPermissionObject[];
+export type CommandPermission = any;
 
 export type CommandConfig = {
     trigger?: string;
@@ -104,10 +93,13 @@ export type CommandConfig = {
     [key: string]: any;
 };
 
-export type CommandType = 'slash' | 'legacy' | 'both';
+export type CommandType = string;
 
 export type CommandExport = {
+    trigger?: string;
+    generateAPICommand?: (...args: any[]) => any;
     command: CommandConfig;
     default?: CommandExport;
     run: (...args: any[]) => Promise<any>;
+    [key: string]: any;
 };
