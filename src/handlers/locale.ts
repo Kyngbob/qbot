@@ -6,6 +6,7 @@ import { User as DiscordUser } from 'discord.js';
 import { Command } from '../structures/Command';
 import { robloxClient } from '../main';
 import { textSync } from 'figlet';
+import noblox from 'noblox.js';
 
 export const checkIconUrl = 'https://cdn.lengolabs.com/qbot-icons/check.png';
 export const xmarkIconUrl = 'https://cdn.lengolabs.com/qbot-icons/xmark.png';
@@ -445,7 +446,17 @@ export const getAlreadyRankedEmbed = (): EmbedBuilder => {
 }
 
 export const getPartialUserInfoEmbed = async (user: User | PartialUser, data: DatabaseUser): Promise<EmbedBuilder> => {
-    const primaryGroup = await user.getPrimaryGroup();
+    let primaryGroup = null;
+    try {
+        const userId = user.id;
+        if (userId) {
+            const groups = await noblox.getGroups(userId);
+            primaryGroup = groups.find((g: any) => g.IsPrimary) || null;
+        }
+    } catch (err) {
+        primaryGroup = null;
+    }
+
     const embed = new EmbedBuilder()
         .setAuthor({ name: `Information: ${user.name}`, iconURL: infoIconUrl })
         .setColor(mainColor)
@@ -470,7 +481,17 @@ export const getPartialUserInfoEmbed = async (user: User | PartialUser, data: Da
 }
 
 export const getUserInfoEmbed = async (user: User | PartialUser, member: GroupMember, data: DatabaseUser): Promise<EmbedBuilder> => {
-    const primaryGroup = await user.getPrimaryGroup();
+    let primaryGroup = null;
+    try {
+        const userId = user.id;
+        if (userId) {
+            const groups = await noblox.getGroups(userId);
+            primaryGroup = groups.find((g: any) => g.IsPrimary) || null;
+        }
+    } catch (err) {
+        primaryGroup = null;
+    }
+
     const embed = new EmbedBuilder()
         .setAuthor({ name: `Information: ${user.name}`, iconURL: infoIconUrl })
         .setColor(mainColor)
