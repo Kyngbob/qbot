@@ -32,9 +32,11 @@ let robloxGroup: Group = null;
 (async () => {
     // Authenticate using ticket if present, otherwise fall back to cookie
     if (process.env.ROBLOX_TICKET) {
-        await robloxClient.loginWithTicket(process.env.ROBLOX_TICKET).catch(console.error);
+        await robloxClient.login({
+            ticket: process.env.ROBLOX_TICKET
+        } as any).catch(console.error);
     } else {
-        await robloxClient.login({ credentials: { cookie: process.env.ROBLOX_COOKIE } }).catch(console.error);
+        await robloxClient.login(process.env.ROBLOX_COOKIE).catch(console.error);
     }
 
     robloxGroup = await robloxClient.getGroup(config.groupId);
