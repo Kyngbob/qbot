@@ -28,9 +28,8 @@ const argumentTypeMappings = {
     DiscordMentionable: ApplicationCommandOptionType.Mentionable,
 }
 
-const mapArgument = (arg: CommandArgument) => {
-    // @ts-ignore
-    const apiArgument: ApplicationCommandOptionData = {
+const mapArgument = (arg: CommandArgument): any => {
+    const apiArgument: any = {
         name: arg.trigger,
         description: arg.description || 'No description provided.',
         type: argumentTypeMappings[arg.type],
@@ -66,7 +65,7 @@ abstract class Command {
      * Generate a command object for slash commands.
      */
     generateAPICommand() {
-        if(this.type.startsWith('Subcommand')) {
+        if(this.type && this.type.startsWith('Subcommand')) {
             return {
                 name: this.trigger,
                 description: this.description,
@@ -77,7 +76,7 @@ abstract class Command {
             return {
                 name: this.trigger,
                 description: this.description,
-                type: commandTypeMappings[this.type],
+                type: this.type ? commandTypeMappings[this.type] : ApplicationCommandType.ChatInput,
                 options: this.args ? this.args.map(mapArgument) : [],
                 defaultPermission: true,
             }
@@ -87,7 +86,6 @@ abstract class Command {
     /**
      * The function to run the command.
      * @param ctx The context of the command.
-     * @param args The arguments passed to the command, as an object mapped by ID.
      */
     abstract run(ctx: CommandContext): void;
 }
