@@ -3,6 +3,7 @@ import { BotConfig } from './structures/types';
 
 export const config: BotConfig = {
     groupId: Number(process.env.GROUP_ID) || 1101341299,
+    discordToken: process.env.DISCORD_TOKEN || '',
     slashCommands: true,
     legacyCommands: {
         enabled: true,
