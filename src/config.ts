@@ -3,6 +3,7 @@ import { BotConfig } from './structures/types';
 
 export const config: BotConfig = {
     groupId: Number(process.env.GROUP_ID) || 1101341299,
+    openCloudKey: process.env.ROBLOX_OPENCLOUD_KEY || '',
     slashCommands: true,
     legacyCommands: {
         enabled: true,
@@ -67,4 +68,4 @@ export const config: BotConfig = {
     },
     status: 'online',
     deleteWallURLs: false,
-}
+};
