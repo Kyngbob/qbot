@@ -16,8 +16,6 @@ require('./database');
 try { require('./api'); } catch {}
 
 const discordClient = new QbotClient();
-discordClient.login(config.discordToken);
-
 const apiKey = process.env.ROBLOX_OPENCLOUD_KEY;
 const groupId = config.groupId;
 
@@ -41,7 +39,7 @@ async function getRankNumberFromRoleId(roleId: string): Promise<number> {
     }
 }
 
-export const robloxGroup = {
+export const robloxGroup: any = {
     id: groupId,
     name: 'Group',
     async getRank(userId: number): Promise<number> {
@@ -49,8 +47,7 @@ export const robloxGroup = {
             const res = await axios.get(`https://apis.roblox.com/cloud/v1/groups/${groupId}/users/${userId}`, {
                 headers: { 'x-api-key': apiKey }
             });
-            const rolePath = res.data.role;
-            const roleId = rolePath.split('/').pop();
+            const roleId = res.data.role.split('/').pop();
             return await getRankNumberFromRoleId(roleId);
         } catch {
             return 1;
@@ -65,12 +62,7 @@ export const robloxGroup = {
         const res = await axios.patch(
             `https://apis.roblox.com/cloud/v1/groups/${groupId}/users/${userId}`,
             { roleId },
-            {
-                headers: {
-                    'x-api-key': apiKey,
-                    'Content-Type': 'application/json'
-                }
-            }
+            { headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' } }
         );
         return res.data;
     },
@@ -94,6 +86,29 @@ export const robloxGroup = {
         }
         throw new Error('User is already at the lowest rank.');
     },
+    async getMember(userId: number): Promise<any> {
+        const rank = await this.getRank(userId);
+        const res = await axios.get(`https://groups.roblox.com/v1/groups/${groupId}/roles`);
+        const role = res.data.roles.find((r: any) => r.rank === rank) || { id: 0, name: 'Guest', rank: 0 };
+        return {
+            id: userId,
+            role: {
+                id: role.id,
+                name: role.name,
+                rank: role.rank
+            }
+        };
+    },
+    async updateMember(userId: number, options: { role: number }): Promise<any> {
+        return await this.setRank(userId, options.role);
+    },
+    async kickMember(userId: number): Promise<any> {
+        const res = await axios.delete(
+            `https://apis.roblox.com/cloud/v1/groups/${groupId}/users/${userId}`,
+            { headers: { 'x-api-key': apiKey } }
+        );
+        return res.data;
+    },
     async getRoles() {
         const res = await axios.get(`https://groups.roblox.com/v1/groups/${groupId}/roles`);
         return res.data.roles;
@@ -102,12 +117,32 @@ export const robloxGroup = {
         const res = await axios.get(`https://groups.roblox.com/v1/groups/${groupId}`);
         return res.data.shout;
     },
-    async setShout() {
-        return true;
+    async updateShout(message: string) {
+        const res = await axios.patch(
+            `https://apis.roblox.com/cloud/v1/groups/${groupId}`,
+            { shout: message },
+            { headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' } }
+        );
+        return res.data;
+    },
+    async setShout(message: string) {
+        return await this.updateShout(message);
+    },
+    async getJoinRequests() {
+        const res = await axios.get(`https://groups.roblox.com/v1/groups/${groupId}/join-requests`);
+        return res.data;
+    },
+    async acceptJoinRequest(userId: number) {
+        const res = await axios.post(`https://groups.roblox.com/v1/groups/${groupId}/join-requests/users/${userId}`);
+        return res.data;
+    },
+    async declineJoinRequest(userId: number) {
+        const res = await axios.delete(`https://groups.roblox.com/v1/groups/${groupId}/join-requests/users/${userId}`);
+        return res.data;
     }
 };
 
-export const robloxClient = {
+export const robloxClient: any = {
     async getUser(userId: number) {
         const res = await axios.get(`https://users.roblox.com/v1/users/${userId}`);
         return res.data;
@@ -115,6 +150,21 @@ export const robloxClient = {
     async getUsersByUsernames(usernames: string[]) {
         const res = await axios.post(`https://users.roblox.com/v1/usernames/users`, { usernames });
         return res.data.data;
+    },
+    async getGroup() {
+        return robloxGroup;
+    },
+    apis: {
+        user: {
+            async getUserInfo(userId: number) {
+                const res = await axios.get(`https://users.roblox.com/v1/users/${userId}`);
+                return res.data;
+            },
+            async getUsersByUsernames(usernames: string[]) {
+                const res = await axios.post(`https://users.roblox.com/v1/usernames/users`, { usernames });
+                return res.data.data;
+            }
+        }
     }
 };
 
