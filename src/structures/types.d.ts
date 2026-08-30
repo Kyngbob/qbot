@@ -1,3 +1,5 @@
+import { ActivityType, PresenceStatusData } from 'discord.js';
+
 export interface BotConfig {
     groupId: number;
     discordToken?: string;
@@ -45,9 +47,48 @@ export interface BotConfig {
     };
     activity: {
         enabled: boolean;
-        type: any;
+        type: ActivityType | any;
         value: string;
+        url?: string;
     };
-    status: string;
+    status: PresenceStatusData | string;
     deleteWallURLs: boolean;
 }
+
+export interface DatabaseUser {
+    discordId: string;
+    robloxId?: number;
+    xp?: number;
+    [key: string]: any;
+}
+
+export interface BloxlinkResponse {
+    status: string;
+    primaryAccount?: string;
+    robloxId?: string;
+    [key: string]: any;
+}
+
+export type CommandArgument = {
+    name: string;
+    description: string;
+    type: number;
+    required?: boolean;
+    [key: string]: any;
+};
+
+export type CommandConfig = {
+    name: string;
+    description: string;
+    arguments?: CommandArgument[];
+    [key: string]: any;
+};
+
+export type CommandPermission = string | string[] | boolean;
+
+export type CommandType = 'slash' | 'legacy' | 'both';
+
+export type CommandExport = {
+    command: CommandConfig;
+    run: (...args: any[]) => Promise<any>;
+};
