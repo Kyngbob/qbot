@@ -24,14 +24,29 @@ require('./api');
 const discordClient = new QbotClient();
 discordClient.login(process.env.DISCORD_TOKEN);
 
-const robloxClient = new RobloxClient();
+// Configure Bloxy to route requests through the Cloudflare proxy
+const proxyUrl = process.env.PROXY_URL;
+const robloxClient = new RobloxClient({
+    requestOptions: proxyUrl ? {
+        request: (options) => {
+            // Rewrite request URLs to point to your Cloudflare Worker proxy
+            if (options.url) {
+                const originalUrl = new URL(options.url.toString());
+                const robloxHost = originalUrl.hostname;
+                options.url = `${proxyUrl}${originalUrl.pathname}${originalUrl.search}${originalUrl.search ? '&' : '?'}robloxHost=${robloxHost}`;
+            }
+            return options;
+        }
+    } : undefined
+});
+
 let robloxGroup: Group = null;
 
 (async () => {
     try {
         // Authenticate with the ROBLOX_COOKIE directly
         await robloxClient.login(process.env.ROBLOX_COOKIE);
-        console.log('Successfully authenticated with Roblox!');
+        console.log('Successfully authenticated with Roblox via proxy!');
 
         robloxGroup = await robloxClient.getGroup(config.groupId);
         
