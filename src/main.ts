@@ -18,6 +18,7 @@ try { require('./api'); } catch {}
 const discordClient = new QbotClient();
 const apiKey = process.env.ROBLOX_OPENCLOUD_KEY;
 const groupId = config.groupId;
+const discordToken = process.env.DISCORD_TOKEN || config.discordToken;
 
 async function getRoleIdFromRank(rankNumber: number): Promise<string> {
     try {
@@ -171,8 +172,8 @@ export const robloxClient: any = {
 discordClient.on('interactionCreate', handleInteraction as any);
 discordClient.on('messageCreate', handleLegacyCommand);
 
-discordClient.login(config.discordToken).then(() => {
-    console.log('✓ Qbot started successfully with Open Cloud compatibility layer!');
+discordClient.login(discordToken).then(() => {
+    console.log('✓ Qbot started successfully!');
 }).catch((err) => {
     console.error('Failed to log into Discord:', err);
 });
