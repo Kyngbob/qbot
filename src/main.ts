@@ -27,15 +27,18 @@ discordClient.login(process.env.DISCORD_TOKEN);
 const proxyUrl = process.env.PROXY_URL;
 const robloxClient = new RobloxClient();
 
-// Configure Bloxy REST controller to route through Cloudflare proxy if PROXY_URL is defined
 if (proxyUrl) {
     const originalRequest = robloxClient.rest.request.bind(robloxClient.rest);
     robloxClient.rest.request = async (options: any) => {
         if (options && options.url) {
             const originalUrl = new URL(options.url.toString());
-            const robloxHost = originalUrl.hostname;
-            // Rewrite destination to your Cloudflare Worker URL with target host parameter
-            options.url = `${proxyUrl}${originalUrl.pathname}${originalUrl.search}${originalUrl.search ? '&' : '?'}robloxHost=${robloxHost}`;
+            const cleanProxyUrl = proxyUrl.endsWith('/') ? proxyUrl.slice(0, -1) : proxyUrl;
+            
+            // Retain original hostname (groups.roblox.com, users.roblox.com, etc.)
+            const targetHost = originalUrl.hostname;
+            const paramSeparator = originalUrl.search ? '&' : '?';
+            
+            options.url = `${cleanProxyUrl}${originalUrl.pathname}${originalUrl.search}${paramSeparator}robloxHost=${targetHost}`;
         }
         return originalRequest(options);
     };
@@ -49,6 +52,7 @@ let robloxGroup: Group = null;
         console.log('Successfully authenticated with Roblox via proxy!');
 
         robloxGroup = await robloxClient.getGroup(config.groupId);
+        console.log(`Loaded Roblox Group: ${robloxGroup.name} (${robloxGroup.id})`);
         
         // [Events] - Only run after successful authentication
         checkSuspensions();
