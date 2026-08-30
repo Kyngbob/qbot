@@ -96,7 +96,7 @@ export type CommandConfig = {
 export type CommandType = string;
 
 export type CommandExport = {
-    trigger?: string;
+    trigger: string;
     generateAPICommand?: (...args: any[]) => any;
     command: CommandConfig;
     default?: CommandExport;
